@@ -33,4 +33,56 @@ require("mapdata")      # Supplement to maps package
 # Data file has previous manipulations
 LSVFS <- read.csv("./Working/CBC_LSVFS.DEL.csv")
 ## View to confirm proper read
-#View(LSVFS.1)
+#View(LSVFS)
+
+## rename columns
+colnames(LSVFS) <- c("date.time", 
+                     "rainfall", 
+                     "intensity",
+                     "Air.temp", 
+                     "In.temp", 
+                     "In.depth", 
+                     "Out.temp", 
+                     "Out.depth", 
+                     "event")
+# Confirm
+# View(LSVFS)
+
+## Set date time fomat
+LSVFS$date.time <- mdy_hm(LSVFS$date.time, tz = "est")
+# Confirm class
+#class(LSVFS[,1])
+
+## Need to convert units to metric
+LSVFS.m <- mutate(LSVFS, rainfall = (rainfall * 25.4), 
+                  intensity = (intensity * 25.4), 
+                  Air.temp = (Air.temp - 32)/1.8, 
+                  In.temp = (In.temp - 32)/1.8, 
+                  In.depth = (In.depth * 30.48), 
+                  Out.temp = (Out.temp - 32)/1.8, 
+                  Out.depth = (Out.depth * 30.48))
+#View(LSVFS.m)
+
+## Antecedant dry period analysis
+## Rainfall event delineation
+# Exstract from Drizzle0.9.5 + modified
+event <- LSVFS.m$event
+event[event != 0] <- NA
+ADP.index <- cumsum(diff(!is.na(c(NA, (event)))) > 0) + (0*event)
+# Add ADP index as new variable
+LSVFS.m[, "ADP.index"] <- ADP.index
+#Replace index NAs with zero
+LSVFS.m$ADP.index[is.na(LSVFS.m$ADP.index)] <- 0 
+# Confirm
+# View(LSVFS.m)
+
+## Summary of ADP
+ADP.sum <- (LSVFS.m) %>%
+  group_by(ADP.index) %>%
+  summarise(duation = (max(date.time) - min(date.time))) 
+#View(ADP.sum)
+# Range in days
+# 1.02-81.67
+# Median in days
+# 3.73
+
