@@ -246,17 +246,19 @@ LSVFSsum <- LSVFSevents %>%
                                  medinT = median(In.temp, na.rm = TRUE), 
                                  maxinT = max(In.temp, na.rm = TRUE),
                                  medoutT = median(Out.temp, na.rm = TRUE), 
-                                 maxoutT = max(Out.temp, na.rm = TRUE))})
+                                 maxoutT = max(Out.temp, na.rm = TRUE),
+                                 varinT = var(In.temp, na.rm =TRUE),
+                                 varoutT = var(Out.temp, na.rm = TRUE))})
 # View(LSVFSsum)
 
 ## Breaking events into pre and post 
 ## subset to provide additional hydrology analsis
 LSVFS_pre1012 <- (LSVFSsum[-c(1),]) %>%
-  subset(Date <= "2017/10/12" & Accumulation >= 1.6) 
+  subset(Date <= "2017/10/12" & Accumulation >= 1.89) 
 #View(LSVFS_pre1012)
 ## subset to provide additional hydrology analsis
 LSVFS_post1012 <- (LSVFSsum[-c(1),]) %>%
-  subset(Date >= "2017/10/12" & Accumulation >= 1.6) 
+  subset(Date >= "2017/10/12" & Accumulation >= 1.89) 
 #View(LSVFS_post1012)
 
 ## Wilcoxon test
@@ -273,6 +275,25 @@ wilcox.test(LSVFS_pre1012$maxoutT, alternative = "t", mu = 21, paired = FALSE, c
 wilcox.test(LSVFS_pre1012$medinT, LSVFS_pre1012$medoutT, alternative = "t", paired = TRUE, conf.int = TRUE, conf.level = 0.95)
 # max in to out
 wilcox.test(LSVFS_pre1012$maxinT, LSVFS_pre1012$maxoutT, alternative = "t", paired = TRUE, conf.int = TRUE, conf.level = 0.95)
+# Difference of variance
+wilcox.test(LSVFS_pre1012$varinT, LSVFS_pre1012$varoutT, alternative = "t", paired = TRUE, conf.int = TRUE, conf.level = 0.95)
+
+## Wilcoxon test
+# median in
+wilcox.test(LSVFS_post1012$medinT, alternative = "l", mu = 21, paired = FALSE, conf.int = TRUE, conf.level = 0.95)
+# max in
+wilcox.test(LSVFS_post1012$maxinT, alternative = "l", mu = 21, paired = FALSE, conf.int = TRUE, conf.level = 0.95)
+# median out
+wilcox.test(LSVFS_post1012$medoutT, alternative = "l", mu = 21, paired = FALSE, conf.int = TRUE, conf.level = 0.95)
+# max out
+wilcox.test(LSVFS_post1012$maxoutT, alternative = "l", mu = 21, paired = FALSE, conf.int = TRUE, conf.level = 0.95)
+# Paired test
+# median in to out
+wilcox.test(LSVFS_post1012$medinT, LSVFS_post1012$medoutT, alternative = "t", paired = TRUE, conf.int = TRUE, conf.level = 0.95)
+# max in to out
+wilcox.test(LSVFS_post1012$maxinT, LSVFS_post1012$maxoutT, alternative = "t", paired = TRUE, conf.int = TRUE, conf.level = 0.95)
+# Difference of variance
+wilcox.test(LSVFS_post1012$varinT, LSVFS_post1012$varoutT, alternative = "t", paired = TRUE, conf.int = TRUE, conf.level = 0.95)
 
 ## box plots of pre-1012
 # median data
@@ -308,18 +329,53 @@ ggplot(data = LSVFSpre1012max_box)+
   theme(legend.position = "bottom", 
         legend.title = element_blank())
 
+## box plots of post-1012
+# median data
+LSVFSpost1012med_box <- (LSVFS_post1012) %>%
+  select(medinT,
+         medoutT) %>%
+  melt()
+#View(LSVFSpost1012med_box)
+# maximum data
+LSVFSpost1012max_box <- (LSVFS_post1012) %>%
+  select(maxinT,
+         maxoutT) %>%
+  melt()
+#View(LSVFSpost1012max_box)
+
+# plot median temps
+ggplot(data = LSVFSpost1012med_box)+
+  geom_boxplot(aes(x = variable, y = value))+
+  geom_hline(aes(yintercept = 21, color = "Trout Threshold"))+
+  scale_x_discrete(labels = c("Inlet", "Outlet"))+
+  scale_y_continuous(limits = c(10,30), expand = c(0,0)) +
+  labs(x = "Temperature Location", y = "Temperature (°C)")+
+  theme(legend.position = "bottom", 
+        legend.title = element_blank())
+
+# plot max temps
+ggplot(data = LSVFSpost1012max_box)+
+  geom_boxplot(aes(x = variable, y = value))+
+  geom_hline(aes(yintercept = 21, color = "Trout Threshold"))+
+  scale_x_discrete(labels = c("Inlet", "Outlet"))+
+  scale_y_continuous(limits = c(10,30), expand = c(0,0)) +
+  labs(x = "Temperature Location", y = "Temperature (°C)")+
+  theme(legend.position = "bottom", 
+        legend.title = element_blank())
+
 # Scatter plot of all medians and maximums
 tot.scat <- (LSVFSsum) %>%
+  subset(Accumulation >= 1.89)%>%
   select(Date,
          medinT,
          maxinT,
          medoutT,
          maxoutT) 
 colnames(tot.scat) <- c("Date",
-                        "Median In",
-                        "Maximum In",
-                        "Median Out",
-                        "Maximum Out")
+                        "Median Inlet",
+                        "Maximum Inlet",
+                        "Median Outlet",
+                        "Maximum Outlet")
 # View(tot.scat)
 # Melt data set
 tot.scat <- (tot.scat) %>%
@@ -380,5 +436,4 @@ ggplot(data = prob.plot)+
   scale_y_continuous(limits = c(0.0,1.0), expand = c(0,0)) +
   scale_x_continuous(limits = c(10.0, 32.5), expand = c(0,0))+
   labs(x = "Temperature (°C)", y = "Probability")
-
 
