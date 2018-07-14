@@ -437,3 +437,6 @@ ggplot(data = prob.plot)+
   scale_x_continuous(limits = c(10.0, 32.5), expand = c(0,0))+
   labs(x = "Temperature (°C)", y = "Probability")
 
+## How many events greater than 1in
+inch.st <- (LSVFSsum) %>%
+  subset(Accumulation >= 25.4)
