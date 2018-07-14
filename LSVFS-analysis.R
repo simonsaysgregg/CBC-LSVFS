@@ -440,3 +440,9 @@ ggplot(data = prob.plot)+
 ## How many events greater than 1in
 inch.st <- (LSVFSsum) %>%
   subset(Accumulation >= 25.4)
+## Rainfall histogram
+rain.acc <- (LSVFSsum) %>%
+  select(Accumulation)
+ggplot(data = rain.acc, aes(x = Accumulation))+
+  geom_histogram(binwidth = 8.128)+
+  labs(x = "Rainfall Accumulation (mm)", y = "Discrete Events (count)")
