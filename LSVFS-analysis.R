@@ -80,12 +80,12 @@ LSVFS.m$ADP.index[is.na(LSVFS.m$ADP.index)] <- 0
 ## Summary of ADP
 ADP.sum <- (LSVFS.m) %>%
   group_by(ADP.index) %>%
-  summarise(duation = (max(date.time) - min(date.time))) 
+  summarise(duration = difftime(max(date.time), min(date.time), units = "days")) 
 #View(ADP.sum)
 # Range in days
-# 1.02-81.67
+# 0.002777778 6.816666667
 # Median in days
-# 3.73
+#  0.6069444
 
 ## 9/5 Event
 ## Plot depth and rainfall
