@@ -445,5 +445,5 @@ rain.acc <- (LSVFSsum) %>%
   select(Accumulation)
 ggplot(data = rain.acc, aes(x = Accumulation))+
   geom_histogram(binwidth = 8.128)+
-  theme(text = element_text(size = 22))+
+  theme(text = element_text(size = 24))+
   labs(x = "Rainfall Accumulation (mm)", y = "Discrete Events (count)")
