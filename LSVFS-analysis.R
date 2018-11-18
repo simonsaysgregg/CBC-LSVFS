@@ -135,6 +135,7 @@ plot1 <-ggplot(data = plot951)+
             scale_colour_manual(values = brewer.pal(3, "Set1"), labels = c("In", "Out"))+
             scale_linetype_manual(values = c(1,2), labels = c("In", "Out"))+
             labs(x = "Date", y = "Depth (cm)")+
+            theme_grey()+
             theme(legend.position = "bottom", 
                   legend.title = element_blank(),
                   text = element_text(size = 18))+
@@ -145,6 +146,7 @@ plot2 <-ggplot(data = plot952)+
             scale_colour_manual(values = brewer.pal(3, "Set1"), labels = c("Air", "In", "Out"))+
             scale_linetype_manual(values = c(1,2,4), labels = c("Air", "In", "Out"))+
             labs(x = "Date", y = "Temperature (°C)")+
+            theme_grey()+
             theme(legend.position = "bottom", 
                   legend.title = element_blank(), 
                   text = element_text(size = 18))+
@@ -152,8 +154,9 @@ plot2 <-ggplot(data = plot952)+
 # Plot 3
 plot3 <- ggplot(data = plot953)+
   geom_bar(aes(x = date.time, y = value, color = variable, linetype = variable), stat = "identity", size = 1)+
-  labs(y = "Rainfall (mm)", x = "Date")+
+  labs(y = "Rainfall (mm/hr)", x = "Date")+
   scale_y_reverse()+
+  theme_grey()+
   theme(legend.position = "none",
         plot.title = element_text(hjust = 0.5),
         text = element_text(size = 18),
@@ -165,7 +168,7 @@ gA <- ggplotGrob(plot3)
 gB <- ggplotGrob(plot1)
 gC <- ggplotGrob(plot2)
 grid::grid.newpage()
-plot_grid(gA, gB, gC, rel_heights = c(1,4,4), ncol = 1, align = "v")
+plot_grid(gA, gB, gC, rel_heights = c(1.2,2.2,2.2), ncol = 1, align = "v")
 
 
 ## 8/30 Event
@@ -188,6 +191,12 @@ colnames(plot8302) <- c("date.time",
                        "Air",
                        "In",
                        "Out")
+# Plot 3
+plot8303 <- (LSVFS.m) %>%
+  select(date.time,
+         rainfall)
+colnames(plot8303) <- c("date.time",
+                       "Rainfall")
 # Prep plotting dataset1
 plot8301 <- (plot8301) %>%
   subset(date.time >= as.POSIXct("2017-08-30 09:00:00") & date.time <= as.POSIXct("2017-08-31 08:00:00")) %>%
@@ -197,13 +206,18 @@ plot8301 <- (plot8301) %>%
 plot8302 <- (plot8302) %>%
   subset(date.time >= as.POSIXct("2017-08-30 09:00:00") & date.time <= as.POSIXct("2017-08-31 08:00:00")) %>%
   melt(id = "date.time")
-# View(plot8302)
+# Prep plotting dataset3
+plot8303 <- (plot8303) %>%
+  subset(date.time >= as.POSIXct("2017-08-30 09:00:00") & date.time <= as.POSIXct("2017-08-31 08:00:00")) %>%
+  melt(id = "date.time")
+# View(plot8303)
 # plot1
 plot1 <-ggplot(data = plot8301)+
   geom_line(aes(x = date.time, y = value, color = variable, linetype = variable), size = 1)+
   scale_colour_manual(values = brewer.pal(3, "Set1"), labels = c("In", "Out"))+
   scale_linetype_manual(values = c(1,2), labels = c("In", "Out"))+
   labs(x = "Date", y = "Depth (cm)")+
+  theme_grey()+
   theme(legend.position = "bottom", 
         legend.title = element_blank(),
         text = element_text(size = 18))+
@@ -215,12 +229,31 @@ plot2 <-ggplot(data = plot8302)+
   scale_colour_manual(values = brewer.pal(3, "Set1"), labels = c("Air", "In", "Out"))+
   scale_linetype_manual(values = c(1,2,4), labels = c("Air", "In", "Out"))+
   labs(x = "Date", y = "Temperature (°C)")+
+  theme_grey()+
   theme(legend.position = "bottom", 
         legend.title = element_blank(), 
         text = element_text(size = 18))+
   scale_x_datetime(date_labels = "%m/%d %H:%M", date_breaks = "6 hours")
-grid.newpage()
-grid.draw(rbind(ggplotGrob(plot1), ggplotGrob(plot2), size = "last"))
+
+# Plot 3
+plot3 <- ggplot(data = plot8303)+
+  geom_bar(aes(x = date.time, y = value, color = variable, linetype = variable), stat = "identity", size = 1)+
+  labs(y = "Rainfall (mm/hr)", x = "Date")+
+  scale_y_reverse()+
+  theme_grey()+
+  theme(legend.position = "none",
+        plot.title = element_text(hjust = 0.5),
+        text = element_text(size = 18),
+        axis.title.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        legend.text = element_blank())
+gA <- ggplotGrob(plot3)
+gB <- ggplotGrob(plot1)
+gC <- ggplotGrob(plot2)
+grid::grid.newpage()
+plot_grid(gA, gB, gC, rel_heights = c(1.2,2.2,2.2), ncol = 1, align = "v")
+
 
 ## 8/31 Event
 ## Plot depth and rainfall
