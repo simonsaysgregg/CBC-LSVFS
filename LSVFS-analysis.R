@@ -9,6 +9,7 @@ require("scales")       #
 require("RColorBrewer") # creates nice color schemes
 require("corrplot")     # A graphical display of a correlation matrix between all combinations of variables
 require("grid")
+require("cowplot")
 ## Statistical analysis
 require("stats")        # Lots of stats stuff
 ## Data management
@@ -107,6 +108,12 @@ colnames(plot952) <- c("date.time",
                        "Air",
                        "In",
                        "Out")
+# Plot 3
+plot953 <- (LSVFS.m) %>%
+  select(date.time,
+         rainfall)
+colnames(plot953) <- c("date.time",
+                       "Rainfall")
 # Prep plotting dataset1
 plot951 <- (plot951) %>%
   subset(date.time >= as.POSIXct("2017-09-05 09:00:00") & date.time <= as.POSIXct("2017-09-06 16:00:00")) %>%
@@ -117,6 +124,11 @@ plot952 <- (plot952) %>%
   subset(date.time >= as.POSIXct("2017-09-05 09:00:00") & date.time <= as.POSIXct("2017-09-06 16:00:00")) %>%
   melt(id = "date.time")
 # View(plot952)
+# Prep plotting dataset3
+plot953 <- (plot953) %>%
+  subset(date.time >= as.POSIXct("2017-09-05 09:00:00") & date.time <= as.POSIXct("2017-09-06 16:00:00")) %>%
+  melt(id = "date.time")
+# View(plot953)
 # plot1
 plot1 <-ggplot(data = plot951)+
             geom_line(aes(x = date.time, y = value, color = variable, linetype = variable), size = 1)+
@@ -137,8 +149,23 @@ plot2 <-ggplot(data = plot952)+
                   legend.title = element_blank(), 
                   text = element_text(size = 18))+
             scale_x_datetime(date_labels = "%m/%d %H:%M", date_breaks = "6 hours")
-grid.newpage()
-grid.draw(rbind(ggplotGrob(plot1), ggplotGrob(plot2), size = "last"))
+# Plot 3
+plot3 <- ggplot(data = plot953)+
+  geom_bar(aes(x = date.time, y = value, color = variable, linetype = variable), stat = "identity", size = 1)+
+  labs(y = "Rainfall (mm)", x = "Date")+
+  scale_y_reverse()+
+  theme(legend.position = "none",
+        plot.title = element_text(hjust = 0.5),
+        text = element_text(size = 18),
+        axis.title.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        legend.text = element_blank())
+gA <- ggplotGrob(plot3)
+gB <- ggplotGrob(plot1)
+gC <- ggplotGrob(plot2)
+grid::grid.newpage()
+plot_grid(gA, gB, gC, rel_heights = c(1,4,4), ncol = 1, align = "v")
 
 
 ## 8/30 Event
